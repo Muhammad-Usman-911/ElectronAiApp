@@ -2,11 +2,13 @@ const { app, BrowserWindow, ipcMain, dialog, session } = require('electron');
 const path = require('path');
 const db = require('./database');
 const bcrypt = require('bcrypt');
+const fs = require('fs');
 
 let mainWindow;
 let currentUser = null;
+const userSessionPath = path.join(app.getPath('userData'), 'user-session.json');
 
-
+// Modify existing createWindow function
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1200,
@@ -17,13 +19,22 @@ function createWindow() {
             webviewTag: true
         },
         icon: path.join(__dirname, '../assets/icon.png'),
-        autoHideMenuBar: true, // 👈 Hides the toolbar/menu bar
+        autoHideMenuBar: true,
     });
 
-    mainWindow.maximize(); // 👈 Maximizes the window
+    mainWindow.maximize();
 
-    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+    // Check for saved session
+    const hasValidSession = loadSavedSession();
+
+    // Load appropriate page based on session status
+    if (hasValidSession) {
+        mainWindow.loadFile(path.join(__dirname, '../renderer/home.html'));
+    } else {
+        mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
+    }
 }
+
 
 app.whenReady().then(() => {
     createWindow();
@@ -37,6 +48,18 @@ app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit();
 });
 
+//if needed in future
+// app.on('before-quit', () => {
+//     // This will clear ALL stored data including cookies, local storage, etc.
+//     session.defaultSession.clearStorageData({
+//       storages: ['cookies', 'localstorage', 'caches', 'indexdb', 'websql', 'serviceworkers']
+//     }).then(() => {
+//       console.log('All webview data cleared before quitting');
+//     }).catch(err => {
+//       console.error('Error clearing webview data:', err);
+//     });
+//   });
+
 // Hash password
 async function hashPassword(password) {
     const saltRounds = 10;
@@ -46,6 +69,44 @@ async function hashPassword(password) {
 // Compare password
 async function comparePassword(password, hash) {
     return bcrypt.compare(password, hash);
+}
+
+function loadSavedSession() {
+    try {
+        if (fs.existsSync(userSessionPath)) {
+            const sessionData = JSON.parse(fs.readFileSync(userSessionPath, 'utf8'));
+            // Check if session is still valid (you might want to add expiration logic)
+            if (sessionData && sessionData.user) {
+                currentUser = sessionData.user;
+                return true;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading saved session:', error);
+    }
+    return false;
+}
+function saveSession(userData) {
+    try {
+        const sessionData = {
+            user: userData,
+            timestamp: Date.now()
+        };
+        fs.writeFileSync(userSessionPath, JSON.stringify(sessionData));
+    } catch (error) {
+        console.error('Error saving session:', error);
+    }
+}
+
+// Clear session data
+function clearSession() {
+    try {
+        if (fs.existsSync(userSessionPath)) {
+            fs.unlinkSync(userSessionPath);
+        }
+    } catch (error) {
+        console.error('Error clearing session:', error);
+    }
 }
 
 // Register new user
@@ -74,7 +135,6 @@ ipcMain.handle('register-user', async (event, userData) => {
     }
 });
 
-// Login user
 ipcMain.handle('login-user', async (event, loginData) => {
     try {
         const user = await getUserByEmail(loginData.email);
@@ -96,6 +156,9 @@ ipcMain.handle('login-user', async (event, loginData) => {
             email: user.email
         };
 
+        // Save session
+        saveSession(currentUser);
+
         return {
             success: true,
             user: currentUser
@@ -105,6 +168,8 @@ ipcMain.handle('login-user', async (event, loginData) => {
         return { success: false, message: error.message };
     }
 });
+
+
 
 // Get current user
 ipcMain.handle('get-current-user', (event) => {
@@ -120,9 +185,12 @@ ipcMain.on('navigate-to-home', (event) => {
     mainWindow.loadFile(path.join(__dirname, '../renderer/home.html'));
 });
 
-// Logout
+// Update logout handler
 ipcMain.on('logout', (event) => {
     currentUser = null;
+
+    // Clear session data
+    clearSession();
 
     // Clear session data
     session.defaultSession.clearStorageData()
