@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Assistant</title>
+    <style>
+        :root {
+            --bg-color: #e0e5ec;
+            --shadow-color-dark: #a3b1c6;
+            --shadow-color-light: #ffffff;
+            --text-color: #4a5568;
+            --accent-color: #6b8cff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 20px;
+            background-color: var(--bg-color);
+            box-shadow: 8px 8px 15px var(--shadow-color-dark), 
+                       -8px -8px 15px var(--shadow-color-light);
+            transition: all 0.3s ease;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--accent-color);
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            margin: 0 5px;
+            box-shadow: 5px 5px 10px var(--shadow-color-dark), 
+                       -5px -5px 10px var(--shadow-color-light);
+        }
+
+        .tab.active {
+            box-shadow: inset 5px 5px 10px var(--shadow-color-dark), 
+                        inset -5px -5px 10px var(--shadow-color-light);
+            color: var(--accent-color);
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--bg-color);
+            border: none;
+            border-radius: 10px;
+            box-shadow: inset 5px 5px 10px var(--shadow-color-dark), 
+                        inset -5px -5px 10px var(--shadow-color-light);
+            color: var(--text-color);
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            box-shadow: inset 4px 4px 6px var(--shadow-color-dark), 
+                        inset -4px -4px 6px var(--shadow-color-light);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--bg-color);
+            box-shadow: 5px 5px 10px var(--shadow-color-dark), 
+                       -5px -5px 10px var(--shadow-color-light);
+            color: var(--accent-color);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            box-shadow: 7px 7px 12px var(--shadow-color-dark), 
+                       -7px -7px 12px var(--shadow-color-light);
+        }
+
+        button:active {
+            box-shadow: inset 5px 5px 10px var(--shadow-color-dark), 
+                        inset -5px -5px 10px var(--shadow-color-light);
+        }
+
+        .status-message {
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        .success {
+            background-color: rgba(72, 187, 120, 0.2);
+            color: #2f855a;
+            box-shadow: inset 3px 3px 5px rgba(163, 177, 198, 0.6), 
+                        inset -3px -3px 5px rgba(255, 255, 255, 0.8);
+        }
+
+        .error {
+            background-color: rgba(245, 101, 101, 0.2);
+            color: #c53030;
+            box-shadow: inset 3px 3px 5px rgba(163, 177, 198, 0.6), 
+                        inset -3px -3px 5px rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AI Chat Assistant</h1>
+        
+        <div class="tabs">
+            <button class="tab active" data-form="login">Login</button>
+            <button class="tab" data-form="signup">Sign Up</button>
+        </div>
+
+        <div id="status-message" class="status-message"></div>
+
+        <div id="loginForm" class="form-section active">
+            <h2>Welcome Back</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+
+        <div id="signupForm" class="form-section">
+            <h2>Create Account</h2>
+            <form id="signup-form">
+                <div class="input-group">
+                    <label for="signup-name">Name</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="input-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="input-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" required>
+                </div>
+                <div class="input-group">
+                    <label for="signup-confirm-password">Confirm Password</label>
+                    <input type="password" id="signup-confirm-password" required>
+                </div>
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

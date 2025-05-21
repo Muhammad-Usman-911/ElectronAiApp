@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat Home</title>
+    <style>
+        :root {
+            --bg-color: #e0e5ec;
+            --shadow-color-dark: #a3b1c6;
+            --shadow-color-light: #ffffff;
+            --text-color: #4a5568;
+            --accent-color: #6b8cff;
+            --claude-color: #8e44ad;
+            --gpt-color: #2ecc71;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--accent-color);
+            margin: 0;
+        }
+
+        .header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header .user-name {
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--bg-color);
+            box-shadow: 5px 5px 10px var(--shadow-color-dark), 
+                      -5px -5px 10px var(--shadow-color-light);
+            color: var(--text-color);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            box-shadow: 7px 7px 12px var(--shadow-color-dark), 
+                      -7px -7px 12px var(--shadow-color-light);
+        }
+
+        .logout-btn:active {
+            box-shadow: inset 5px 5px 10px var(--shadow-color-dark), 
+                        inset -5px -5px 10px var(--shadow-color-light);
+        }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .ai-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ai-btn {
+            width: 150px;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            background-color: var(--bg-color);
+            box-shadow: 5px 5px 10px var(--shadow-color-dark), 
+                      -5px -5px 10px var(--shadow-color-light);
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .ai-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .ai-btn:active, .ai-btn.active {
+            box-shadow: inset 5px 5px 10px var(--shadow-color-dark), 
+                        inset -5px -5px 10px var(--shadow-color-light);
+            transform: translateY(0);
+        }
+
+        .ai-btn.claude {
+            color: var(--claude-color);
+        }
+
+        .ai-btn.gpt {
+            color: var(--gpt-color);
+        }
+
+        .ai-btn .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            opacity: 0.7;
+        }
+
+        .ai-btn.claude .indicator {
+            background-color: var(--claude-color);
+        }
+
+        .ai-btn.gpt .indicator {
+            background-color: var(--gpt-color);
+        }
+
+        .webview-container {
+            flex: 1;
+            border-radius: 20px;
+            background-color: var(--bg-color);
+            box-shadow: inset 8px 8px 16px var(--shadow-color-dark), 
+                        inset -8px -8px 16px var(--shadow-color-light);
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        #ai-webview {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AI Chat Assistant</h1>
+        <div class="user-info">
+            <span class="user-name" id="user-name">User</span>
+            <button class="logout-btn" id="logout-btn">Logout</button>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="ai-selector">
+            <button class="ai-btn claude active" id="claude-btn">
+                <span>Claude</span>
+                <span class="indicator"></span>
+            </button>
+            <button class="ai-btn gpt" id="gpt-btn">
+                <span>ChatGPT</span>
+                <span class="indicator"></span>
+            </button>
+        </div>
+
+        <div class="webview-container">
+            <webview id="ai-webview" src="https://claude.ai" nodeintegration></webview>
+        </div>
+    </div>
+
+    <script src="home-renderer.js"></script>
+</body>
+</html>
