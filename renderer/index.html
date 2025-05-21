@@ -25,10 +25,16 @@
             align-items: center;
             overflow: hidden;
         }
-
+        .headingcontainer{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
         .container {
             width: 90%;
-            max-width: 400px;
+            max-width: 500px;
             padding: 30px;
             border-radius: 20px;
             background-color: var(--bg-color);
@@ -89,7 +95,7 @@
         }
 
         input {
-            width: 100%;
+            width: 95%;
             padding: 15px;
             background-color: var(--bg-color);
             border: none;
@@ -158,8 +164,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>AI Chat Assistant</h1>
-        
+        <div class="headingcontainer">
+            <h1>AI Chat Assistant</h1>
+            <img src="../icon.svg" alt="" width="45px" height="45px">
+        </div>
         <div class="tabs">
             <button class="tab active" data-form="login">Login</button>
             <button class="tab" data-form="signup">Sign Up</button>

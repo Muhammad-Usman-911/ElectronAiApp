@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 let mainWindow;
 let currentUser = null;
 
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1200,
@@ -15,8 +16,11 @@ function createWindow() {
             contextIsolation: false,
             webviewTag: true
         },
-        icon: path.join(__dirname, '../assets/icon.png')
+        icon: path.join(__dirname, '../assets/icon.png'),
+        autoHideMenuBar: true, // 👈 Hides the toolbar/menu bar
     });
+
+    mainWindow.maximize(); // 👈 Maximizes the window
 
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
 }
@@ -55,7 +59,7 @@ ipcMain.handle('register-user', async (event, userData) => {
 
         // Hash the password
         const hashedPassword = await hashPassword(userData.password);
-        
+
         // Save user to database
         const userId = await saveUserToDB({
             name: userData.name,
@@ -74,13 +78,13 @@ ipcMain.handle('register-user', async (event, userData) => {
 ipcMain.handle('login-user', async (event, loginData) => {
     try {
         const user = await getUserByEmail(loginData.email);
-        
+
         if (!user) {
             return { success: false, message: 'User not found' };
         }
 
         const passwordMatch = await comparePassword(loginData.password, user.password);
-        
+
         if (!passwordMatch) {
             return { success: false, message: 'Invalid password' };
         }
@@ -92,8 +96,8 @@ ipcMain.handle('login-user', async (event, loginData) => {
             email: user.email
         };
 
-        return { 
-            success: true, 
+        return {
+            success: true,
             user: currentUser
         };
     } catch (error) {
@@ -112,14 +116,14 @@ ipcMain.on('navigate-to-home', (event) => {
     if (!currentUser) {
         return;
     }
-    
+
     mainWindow.loadFile(path.join(__dirname, '../renderer/home.html'));
 });
 
 // Logout
 ipcMain.on('logout', (event) => {
     currentUser = null;
-    
+
     // Clear session data
     session.defaultSession.clearStorageData()
         .then(() => {
@@ -156,7 +160,7 @@ async function saveUserToDB(userData) {
         db.run(
             "INSERT INTO user (name, email, password) VALUES (?, ?, ?)",
             [name, email, password],
-            function(err) {
+            function (err) {
                 if (err) reject(err);
                 resolve(this.lastID);
             }
